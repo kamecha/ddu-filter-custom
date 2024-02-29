@@ -4,13 +4,25 @@ import {
   DduItem,
 } from "https://deno.land/x/ddu_vim@v3.10.2/types.ts";
 
-export type Params = Record<never, never>;
+export type Params = {
+  filterCallbackId: string;
+};
 
 export class Filter extends BaseFilter<Params> {
-  filter({}: FilterArguments<Params>): Promise<DduItem[]> {
-    throw new Error("Method not implemented.");
+  async filter(args: FilterArguments<Params>): Promise<DduItem[]> {
+    if (args.filterParams.filterCallbackId === "") {
+      return args.items;
+    }
+    const filteredItems = await args.denops.call(
+      "denops#callback#call",
+      args.filterParams.filterCallbackId,
+      args,
+    );
+    return filteredItems as DduItem[];
   }
   params(): Params {
-    throw new Error("Method not implemented.");
+    return {
+      filterCallbackId: "",
+    };
   }
 }
